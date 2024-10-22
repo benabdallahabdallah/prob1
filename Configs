@@ -1,37 +1,56 @@
 model:
   encoder:
-    node_embed_size: 128
-    edge_embed_size: 64
-    ipa:
-      c_s: 128 #${model.node_embed_size}
-      c_z: 64 #${model.edge_embed_size}
-      c_hidden: 128
-      no_heads: 8
-      no_qk_points: 8
-      no_v_points: 12
-      seq_tfmr_num_heads: 4
-      seq_tfmr_num_layers: 2
-      num_blocks: 6
-      stop_grad: False
-  interpolant:
-    min_t: 1.e-2
+    node_embed_size: 128      # Taille d'embedding pour les nœuds
+    edge_embed_size: 64       # Taille d'embedding pour les arêtes
+
+  ipa:
+    c_s: 128                 # Dimension des caractéristiques scalaires
+    c_z: 64                  # Dimension des caractéristiques vectorielles
+    c_hidden: 128            # Dimension cachée
+    no_heads: 8              # Nombre de têtes d'attention
+    no_qk_points: 8          # Points pour les clés et requêtes
+    no_v_points: 12          # Points pour les valeurs
+    seq_tfmr_num_heads: 4    # Têtes d'attention pour le transformeur séquentiel
+    seq_tfmr_num_layers: 2   # Couches du transformeur séquentiel
+    num_blocks: 6            # Nombre de blocs IPA
+    stop_grad: False         # Contrôle du gradient
+
+ interpolant:
+    min_t: 1.e-2            # Temps minimum
     t_normalization_clip: 0.9
-    sample_sequence: True
-    sample_structure: True
-    rots:
-      train_schedule: linear
-      sample_schedule: exp
-      exp_rate: 10
-    trans:
-      train_schedule: linear
-      sample_schedule: linear
-      sigma: 1.0
-    seqs:
-      num_classes: 20
-      simplex_value: 5.0
-    sampling:
-      num_timesteps: 100
-    self_condition: False
+    sample_sequence: True    # Échantillonnage de séquence
+    sample_structure: True   # Échantillonnage de structure
+
+ rots:
+    train_schedule: linear   # Planification linéaire pour l'entraînement
+    sample_schedule: exp     # Planification exponentielle pour l'échantillonnage
+    exp_rate: 10
+ trans:
+    train_schedule: linear
+    sample_schedule: linear
+    sigma: 1.0
+ seqs:
+    num_classes: 20         # Nombre de classes d'acides aminés
+    simplex_value: 5.0
+
+ sampling:
+    num_timesteps: 100    # Nombre d'étapes de temps pour l'échantillonnage
+    self_condition: False     # Auto-conditionnement désactivé
+ train:
+    loss_weights:           # Poids des différentes composantes de la perte
+    trans_loss: 0.5     # Perte de translation
+    rot_loss: 0.5       # Perte de rotation
+    bb_atom_loss: 0.25  # Perte sur les atomes du backbone
+    seqs_loss: 1.0      # Perte sur les séquences
+    angle_loss: 1.0     # Perte sur les angles
+    torsion_loss: 0.5   # Perte sur les torsions
+
+    max_iters: 400000000    # Nombre maximum d'itérations
+    val_freq: 20000         # Fréquence de validation
+    batch_size: 32          # Taille des lots
+    accum_grad: 1           # Accumulation de gradient
+    seed: 114514           # Graine aléatoire
+    max_grad_norm: 100.0    # Norme maximale du gradient
 
 train:
   loss_weights:
@@ -41,12 +60,12 @@ train:
     seqs_loss: 1.0
     angle_loss: 1.0
     torsion_loss: 0.5
-  max_iters: 400000000
-  val_freq: 20000
-  batch_size: 32
-  accum_grad: 1
-  seed: 114514
-  max_grad_norm: 100.0
+    max_iters: 400000000
+    val_freq: 20000
+    batch_size: 32
+    accum_grad: 1
+    seed: 114514
+    max_grad_norm: 100.0
   optimizer:
     type: adam
     lr: 5.e-4 #1.e-4
